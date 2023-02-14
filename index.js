@@ -1,10 +1,13 @@
 const express = require("express");
 const { ApolloServer, gql } = require("apollo-server-express");
 const app = express();
-
-var admin = require("firebase-admin");
-var serviceAccount = require("./serviceAccountKey.json");
+const userData = require("./services/data");
 const http = require("http");
+
+let companies = [];
+let users = [];
+let los = [];
+let tasks = [];
 
 const typeDefs = gql`
   type Companie {
@@ -14,40 +17,36 @@ const typeDefs = gql`
     cnpj: String
   }
 
+  type User {
+    email: String
+    nivel: String
+    id: ID
+    nome: String
+    senha: String
+  }
+
   type Query {
     companies: [Companie]
+    users: [User]
   }
 `;
 
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    companies: () => companies,
+    companies() {
+      return companies;
+    },
+    users() {
+      return users;
+    },
   },
 };
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://curso-dev-2e4db-default-rtdb.firebaseio.com",
-});
-
-const db = admin.database();
-
-const companiesCollection = db.ref("/empresas");
-let companies = [];
-let dataCompanies = [];
-companiesCollection
-  .once("value", (snapshot) => {
-    const newData = snapshot.val();
-    dataCompanies = [...dataCompanies, newData];
-  })
-  .then(() => {
-    dataCompanies?.map((item) => {
-      for (key in item) {
-        companies = [...companies, item[key]];
-      }
-    });
-  });
+userData("/usuarios").then((res) => (users = res));
+userData("/empresas").then((res) => (companies = res));
+userData("/lo").then((res) => (los = res));
+userData("/atividades").then((res) => (tasks = res));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

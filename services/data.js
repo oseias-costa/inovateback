@@ -8,23 +8,24 @@ admin.initializeApp({
 
 const db = admin.database();
 
-const userData = (collection) => {
-  const userCollection = db.ref(collection);
-  let users = [];
-  let data = [];
-  userCollection
+async function userData(collection) {
+  const setCollection = db.ref(collection);
+  let convert = [];
+  let dataDb = [];
+  await setCollection
     .once("value", (snapshot) => {
       const newData = snapshot.exportVal();
-      data = [...data, newData];
+      dataDb = [...dataDb, newData];
     })
     .then(() => {
-      data?.map((item) => {
+      dataDb?.map((item) => {
         for (key in item) {
-          convert = [...data, item[key]];
+          convert = [...convert, item[key]];
         }
       });
     });
-};
+  return await convert;
+}
 
 const companiesCollection = db.ref("/empresas");
 let companies = [];
@@ -41,3 +42,5 @@ companiesCollection
       }
     });
   });
+
+module.exports = userData;
