@@ -25,28 +25,59 @@ const typeDefs = gql`
     senha: String
   }
 
+  type Task {
+    ano: Int
+    atividade: String
+    empresa: String
+    id: ID
+    mes: String
+    prazo: String
+    realizado: String
+    responsavel: String
+    situacao: String
+    creadedAt: Int
+    frequencia: String
+  }
+
   type Query {
-    companies: [Companie]
+    companies(first: Int): [Companie]
+
     users: [User]
+    user(id: String): User
+    
+    los: [Task]
+    tasks: [Task]
   }
 `;
 
-// Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    companies() {
-      return companies;
+    companies(obj, args) {
+      const first = args.first || 0
+      const last = args.first !== 0 ? args.first + 5 : 5 
+      return companies.slice(first, last)
     },
     users() {
       return users;
     },
+    user(obj, args) {
+      return users.find(item => item.id === args.id)
+    },
+    los() {
+      return los;
+    },
+    tasks() {
+      return tasks;
+    }
   },
 };
 
 userData("/usuarios").then((res) => (users = res));
 userData("/empresas").then((res) => (companies = res));
 userData("/lo").then((res) => (los = res));
-userData("/atividades").then((res) => (tasks = res));
+userData("/atividades").then((res) => {
+  console.log(res.length/5)
+  tasks = res});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -70,6 +101,5 @@ app.get("/rest", function (req, res) {
 });
 
 app.listen(4000, function () {
-  console.log(`server running on port 4000`);
-  console.log(`gql path is http://localhost:4000/${apolloServer.graphqlPath}`);
+  console.log(`gql path is http://localhost:4000${apolloServer.graphqlPath}`);
 });
