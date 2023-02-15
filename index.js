@@ -3,6 +3,7 @@ const { ApolloServer, gql } = require("apollo-server-express");
 const app = express();
 const userData = require("./services/data");
 const http = require("http");
+const pagination = require("./utils/pagination");
 
 let companies = [];
 let users = [];
@@ -40,11 +41,11 @@ const typeDefs = gql`
   }
 
   type Query {
-    companies(first: Int): [Companie]
+    companies(page: Int): [Companie]
 
     users: [User]
     user(id: String): User
-    
+
     los: [Task]
     tasks: [Task]
   }
@@ -53,22 +54,21 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     companies(obj, args) {
-      const first = args.first || 0
-      const last = args.first !== 0 ? args.first + 5 : 5 
-      return companies.slice(first, last)
+      const getPage = pagination(companies, args.page, 5);
+      return getPage;
     },
     users() {
       return users;
     },
     user(obj, args) {
-      return users.find(item => item.id === args.id)
+      return users.find((item) => item.id === args.id);
     },
     los() {
       return los;
     },
     tasks() {
       return tasks;
-    }
+    },
   },
 };
 
@@ -76,8 +76,9 @@ userData("/usuarios").then((res) => (users = res));
 userData("/empresas").then((res) => (companies = res));
 userData("/lo").then((res) => (los = res));
 userData("/atividades").then((res) => {
-  console.log(res.length/5)
-  tasks = res});
+  console.log(res.length / 5);
+  tasks = res;
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
