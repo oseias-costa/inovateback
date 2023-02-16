@@ -4,6 +4,7 @@ const app = express();
 const userData = require("./services/data");
 const http = require("http");
 const pagination = require("./utils/pagination");
+const filterTasks = require("./utils/filterTasks");
 
 let companies = [];
 let users = [];
@@ -46,7 +47,15 @@ const typeDefs = gql`
     users: [User]
     user(id: String): User
 
-    los: [Task]
+    los(
+      status: String
+      responsible: String
+      month: String
+      year: Int
+      frequency: String
+      company: String
+      page: Int
+    ): [Task]
     tasks: [Task]
   }
 `;
@@ -63,8 +72,12 @@ const resolvers = {
     user(obj, args) {
       return users.find((item) => item.id === args.id);
     },
-    los() {
-      return los;
+    los(obj, args) {
+      async function filterList(){
+        const filter = await filterTasks(los, args);
+        return  pagination(filter, args.page, 5);  
+      }
+      return filterList();
     },
     tasks() {
       return tasks;
