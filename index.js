@@ -1,7 +1,7 @@
 const express = require("express");
 const { ApolloServer, gql } = require("apollo-server-express");
 const app = express();
-const userData = require("./services/data");
+const { getData, newData, updateData, removeData } = require("./services/data");
 const http = require("http");
 const pagination = require("./utils/pagination");
 const filterTasks = require("./utils/filterTasks");
@@ -58,6 +58,17 @@ const typeDefs = gql`
     ): [Task]
     tasks: [Task]
   }
+
+  type Mutation {
+    newCompany(cidade: String, nome: String, cnpj: String): Companie!
+    updateCompany(
+      id: String
+      cidade: String
+      nome: String
+      cnpj: String
+    ): Companie!
+    removeCompany(id: String): Companie!
+  }
 `;
 
 const resolvers = {
@@ -73,9 +84,9 @@ const resolvers = {
       return users.find((item) => item.id === args.id);
     },
     los(obj, args) {
-      async function filterList(){
+      async function filterList() {
         const filter = await filterTasks(los, args);
-        return  pagination(filter, args.page, 5);  
+        return pagination(filter, args.page, 5);
       }
       return filterList();
     },
@@ -83,12 +94,23 @@ const resolvers = {
       return tasks;
     },
   },
+  Mutation: {
+    newCompany(_, args) {
+      return newData("/empresas", args);
+    },
+    updateCompany(_, args) {
+      return updateData("/empresas", args);
+    },
+    removeCompany(_, args) {
+      return removeData("/empresas", args);
+    },
+  },
 };
 
-userData("/usuarios").then((res) => (users = res));
-userData("/empresas").then((res) => (companies = res));
-userData("/lo").then((res) => (los = res));
-userData("/atividades").then((res) => {
+getData("/usuarios").then((res) => (users = res));
+getData("/empresas").then((res) => (companies = res));
+getData("/lo").then((res) => (los = res));
+getData("/atividades").then((res) => {
   console.log(res.length / 5);
   tasks = res;
 });

@@ -8,7 +8,7 @@ admin.initializeApp({
 
 const db = admin.database();
 
-async function userData(collection) {
+async function getData(collection) {
   const setCollection = db.ref(collection);
   let convert = [];
   let dataDb = [];
@@ -27,20 +27,24 @@ async function userData(collection) {
   return await convert;
 }
 
-const companiesCollection = db.ref("/empresas");
-let companies = [];
-let dataCompanies = [];
-companiesCollection
-  .once("value", (snapshot) => {
-    const newData = snapshot.exportVal();
-    dataCompanies = [...dataCompanies, newData];
-  })
-  .then(() => {
-    dataCompanies?.map((item) => {
-      for (key in item) {
-        companies = [...dataCompanies, item[key]];
-      }
-    });
-  });
+function newData(collection, data) {
+  newReference = db.ref(collection).push();
+  newId = newReference.key;
+  newObjData = { ...data, id: newId };
+  newReference.set(newObjData);
+  return newObjData;
+}
 
-module.exports = userData;
+function updateData(collection, data) {
+  const path = `${collection}/${data.id}`;
+  db.ref(path).update(data);
+  return data;
+}
+
+function removeData(collection, data) {
+  const path = `${collection}/${data.id}`;
+  db.ref(path).remove();
+  return data;
+}
+
+module.exports = { getData, newData, updateData, removeData };
