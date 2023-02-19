@@ -22,7 +22,7 @@ module.exports = `
       company: String
       page: Int
     ): [Task]
-    tasks: [Task]
+    los: [Task]
   }
 
   input TaskInput {

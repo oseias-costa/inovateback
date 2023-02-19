@@ -1,4 +1,6 @@
 const { newData, updateData, removeData, getData } = require("../services/data");
+const pagination = require("../utils/pagination");
+const filterTasks = require("../utils/filterTasks");
 
 let los = [];
 getData("/lo").then((res) => (los = res));
