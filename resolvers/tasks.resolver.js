@@ -2,7 +2,6 @@ const { newData, updateData, removeData, getData } = require("../services/data")
 const pagination = require("../utils/pagination");
 const filterTasks = require("../utils/filterTasks");
 
-
 let tasks = [];
 getData("/atividades").then((res) => {
   console.log(res.length / 5);
@@ -19,7 +18,7 @@ module.exports = {
         return filterList();
     }
 },
-Mutation: {
+  Mutation: {
     newTask(_, args){
         return newData("/atividades", args)
     },

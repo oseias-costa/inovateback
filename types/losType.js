@@ -12,6 +12,15 @@ module.exports = `
     creadedAt: Int
     frequencia: String
   }
+
+  type TaskItemList {
+    year: Int
+    responsible: String
+    company: String
+    month: String
+    key: Int
+  }
+
   type Query {
     los(
       status: String
@@ -23,6 +32,15 @@ module.exports = `
       page: Int
     ): [Task]
     los: [Task]
+    
+    loItemsFilter(
+      status: String
+      responsible: String
+      month: String
+      year: Int
+      frequency: String
+      company: String
+    ): [TaskItemList]
   }
 
   input TaskInput {
